@@ -30,10 +30,11 @@ public class MasterController {
 
 	public String registerOwnerRequest(@RequestBody RegisterOwnerDTO registerOwnerDTO, HttpSession session) {
 
-		if (validationService.isOwnerRegistrationOnGoing(registerOwnerDTO, session)) {
+		
+		
+		if (validationService.isOwnerRegistrationOnGoing(registerOwnerDTO, session))
+			return  registerOwnerDTO.ownerEmail() + " is being used by someone else, can not proceed.";
 
-			return null;
-		}
 		validationService.initiateRegistration(registerOwnerDTO, session);
 
 		return null;
