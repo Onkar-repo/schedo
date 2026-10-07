@@ -14,37 +14,37 @@ public class Owner {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "owner_id")
-	Integer ownerId;
+	private Integer ownerId;
 	
 	@Column(name = "owner_name")
-	String ownerName;
+	private String ownerName;
 	
 	@Column(name = "owner_email")
-	String ownerEmail;
+	private String ownerEmail;
 	
 	@Column(name = "owner_catagory")
-	String ownerCatagory;
+	private String ownerCatagory;
 	
 	@Column(name = "owner_time_span")
-	Long ownerTimeSpan;
+	private Long ownerTimeSpan;
 	
 	@Column(name = "owner_start_time")
-	Long ownerStartTime;
+	private Long ownerStartTime;
 	
 	@Column(name = "owner_end_time")
-	Long ownerEndTime;
+	private Long ownerEndTime;
 	
 	@Column(name = "owner_start_break")
-	Long ownerStartBreak;
+	private Long ownerStartBreak;
 	
 	@Column(name = "owner_end_break")
-	Long ownerEndBreak;
+	private Long ownerEndBreak;
 	
 	@Column(name = "owner_created_at")
-	Long ownerCreatedAt;
+	private Long ownerCreatedAt;
 	
 	@Column(name = "owner_updated_at")
-	Long ownerUpdatedAt;
+	private Long ownerUpdatedAt;
 
 	public Owner() {
 		super();

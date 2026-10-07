@@ -24,12 +24,12 @@ public class ValidationService {
 	}
 	
 	public boolean isValidInput(RegisterOwnerDTO registerOwnerDTO) {
-		/*
-		registerOwnerDTO.ownerName()
-		registerOwnerDTO.ownerEmail()
-		registerOwnerDTO.ownerCatagory()*/
 		
-		return false;
+	String on =	registerOwnerDTO.ownerName();
+	String oe =	registerOwnerDTO.ownerEmail();
+	String oc =	registerOwnerDTO.ownerCatagory();
+	 	
+		return !on.equals("") && oe.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$") && !oc.equals("");
 	}
 	
 	public boolean isOwnerRegistrationOnGoing(RegisterOwnerDTO registerOwnerDTO, HttpSession session) {
@@ -46,7 +46,7 @@ public class ValidationService {
 	}
 	
 	public boolean isOtpValid(RegisterOwnerDTO registerOwnerDTO, HttpSession session) {
-		
-		return false;
+
+		return session.getAttribute(registerOwnerDTO.ownerEmail()).equals(registerOwnerDTO.crossCode());
 	}
 }

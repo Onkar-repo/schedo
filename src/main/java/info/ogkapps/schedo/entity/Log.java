@@ -2,9 +2,12 @@ package info.ogkapps.schedo.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -14,31 +17,36 @@ public class Log {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "log_id")
-	Integer logId;
+	private Integer logId;
 	
-	@Column(name = "log_owner_id")
-	Integer logOwnerId;
+	//@Column(name = "log_owner_id")
+	//private Integer logOwnerId;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "log_owner_id", nullable = false)
+	private Owner owner;
 	
 	@Column(name = "log_visitor_name")
-	String logVisitorName;
+	private String logVisitorName;
 	
 	@Column(name = "log_visitor_email")
-	String logVisitorEmail;
+	private String logVisitorEmail;
 	
 	@Column(name = "log_visitor_time")
-	Long logVisitorTime;
+	private Long logVisitorTime;
 	
 	@Column(name = "log_created_at")
-	Long logCreatedAt;
+	private Long logCreatedAt;
 
 	public Log() {
 		super();
 	}
 
-	public Log(Integer logOwnerId, String logVisitorName, String logVisitorEmail, Long logVisitorTime,
+	public Log(Integer logId, Owner owner, String logVisitorName, String logVisitorEmail, Long logVisitorTime,
 			Long logCreatedAt) {
 		super();
-		this.logOwnerId = logOwnerId;
+		this.logId = logId;
+		this.owner = owner;
 		this.logVisitorName = logVisitorName;
 		this.logVisitorEmail = logVisitorEmail;
 		this.logVisitorTime = logVisitorTime;
@@ -53,12 +61,12 @@ public class Log {
 		this.logId = logId;
 	}
 
-	public Integer getLogOwnerId() {
-		return logOwnerId;
+	public Owner getOwner() {
+		return owner;
 	}
 
-	public void setLogOwnerId(Integer logOwnerId) {
-		this.logOwnerId = logOwnerId;
+	public void setOwner(Owner owner) {
+		this.owner = owner;
 	}
 
 	public String getLogVisitorName() {
@@ -91,12 +99,6 @@ public class Log {
 
 	public void setLogCreatedAt(Long logCreatedAt) {
 		this.logCreatedAt = logCreatedAt;
-	}
-
-	@Override
-	public String toString() {
-		return "Log [logId=" + logId + ", logOwnerId=" + logOwnerId + ", logVisitorName=" + logVisitorName
-				+ ", logVisitorTime=" + logVisitorTime + "]";
 	}
 	
 }
