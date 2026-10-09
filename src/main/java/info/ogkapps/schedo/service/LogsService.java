@@ -2,6 +2,7 @@ package info.ogkapps.schedo.service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +51,14 @@ public class LogsService {
 		return end ? endOfDayMillis : startOfDayMillis;
 	}
 
+	private long startMomentOfTheDay(long millis) {
+		LocalDateTime temp = LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault());
+		LocalDateTime customDateTime = LocalDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(), 0,
+				0, 0);
+		long newMillis = customDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+		return newMillis;
+	}
+
 	public String markMeetingIfValid(ScheduleMeetingDTO scheduleMeetingDTO) {
 		Long targetTime = scheduleMeetingDTO.logVisitorTime();
 		long beforeTarget;
@@ -57,21 +66,31 @@ public class LogsService {
 		Owner tOwner = ownersRepository.findByOwnerEmail(scheduleMeetingDTO.ownerEmail());
 		if (tOwner != null) {
 			beforeTarget = targetTime - tOwner.getOwnerTimeSpan();
-			;
 			afterTarget = targetTime + tOwner.getOwnerTimeSpan();
-			;
 		} else {
 			return "Failed";
 		}
+
+		long shiftStart, shiftEnd, breakStart, breakEnd;
+		long baseTime = startMomentOfTheDay(targetTime);
+		shiftStart = tOwner.getOwnerStartTime() + baseTime;
+		shiftEnd = tOwner.getOwnerEndTime() + baseTime;
+		breakStart = tOwner.getOwnerStartBreak() + baseTime;
+		breakEnd = tOwner.getOwnerEndBreak() + baseTime;
 
 		List<Log> filteredLogs = logsRepository.findByLogVisitorTimeBetween(convertTo(targetTime, false),
 				convertTo(targetTime, true));
 
 		List<Log> tempList = filteredLogs.stream()
-				.filter(log -> beforeTarget > log.getLogVisitorTime() && afterTarget < log.getLogVisitorTime())
+				.filter(log -> log.getLogVisitorTime() > beforeTarget && log.getLogVisitorTime() < afterTarget)
 				.toList();
 
-		if (!tempList.isEmpty()) {
+		List<Log> tempList2 = filteredLogs.stream()
+				.filter(log -> log.getLogVisitorTime() < shiftStart || log.getLogVisitorTime() > shiftEnd
+						|| (log.getLogVisitorTime() > breakStart && log.getLogVisitorTime() < breakEnd))
+				.toList();
+
+		if (!tempList.isEmpty() || !tempList2.isEmpty()) {
 			return "Time not available. Check Availability and retry.";
 		}
 		long timeNow = System.currentTimeMillis();

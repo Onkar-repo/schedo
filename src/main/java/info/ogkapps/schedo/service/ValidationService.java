@@ -56,7 +56,12 @@ public class ValidationService {
 		Long lvt = scheduleMeetingDTO.logVisitorTime();
 		long ct = System.currentTimeMillis();
 
-		return !oe.equals("") && !lvn.equals("") && lve.equals("") && oe.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+		System.out.println(oe);
+		System.out.println(lvn);
+		System.out.println(lve);
+		System.out.println(lvt);
+		
+		return !oe.equals("") && !lvn.equals("") && !lve.equals("") && oe.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
 				&& lve.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$") && lvt > ct;
 	}
 

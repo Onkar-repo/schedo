@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import info.ogkapps.schedo.dto.CheckAvailabilityDTO;
+import info.ogkapps.schedo.dto.LoadOwnersDTO;
 import info.ogkapps.schedo.dto.RegisterOwnerDTO;
 import info.ogkapps.schedo.dto.ScheduleMeetingDTO;
 import info.ogkapps.schedo.dto.ScheduledTimeListDTO;
@@ -68,6 +69,12 @@ public class MasterController {
 			return temp;
 		}
 		return logsService.scheduledTimeList(checkAvailabilityDTO);
+	}
+	
+	@GetMapping("/load")
+	public List<LoadOwnersDTO> getOwners(){
+		
+		return ownerService.returnAllOwners();
 	}
 
 	@PostMapping("/mark")

@@ -1,5 +1,7 @@
 package info.ogkapps.schedo.entity;
 
+import org.hibernate.annotations.DynamicInsert;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
+@DynamicInsert
 @Table(name = "logs")
 public class Log {
 
