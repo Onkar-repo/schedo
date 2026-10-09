@@ -10,5 +10,5 @@ import info.ogkapps.schedo.entity.Log;
 @Repository
 public interface LogsRepository extends JpaRepository<Log, Integer>{
 List<Log> findByOwner_OwnerEmail(String ownerEmail);
-List<Log> findbyLogVisitorTimeBetween(long start, long end);
+List<Log> findByLogVisitorTimeBetween(long start, long end);
 }

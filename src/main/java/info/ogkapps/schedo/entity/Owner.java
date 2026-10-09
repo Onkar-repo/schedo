@@ -58,6 +58,8 @@ public class Owner {
 		this.ownerCreatedAt = ownerCreatedAt;
 		this.ownerUpdatedAt = ownerUpdatedAt;
 	}
+	
+	
 
 	public Integer getOwnerId() {
 		return ownerId;

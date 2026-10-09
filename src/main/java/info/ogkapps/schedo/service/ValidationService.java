@@ -15,6 +15,12 @@ import jakarta.servlet.http.HttpSession;
 public class ValidationService {
 
 	private JavaMailSender mailSender;
+	
+
+	public ValidationService(JavaMailSender mailSender) {
+		super();
+		this.mailSender = mailSender;
+	}
 
 	public void sendSimpleEmail(String toEmail, String subject, String body) {
 		SimpleMailMessage message = new SimpleMailMessage();
@@ -70,6 +76,10 @@ public class ValidationService {
 
 	public boolean isOtpValid(RegisterOwnerDTO registerOwnerDTO, HttpSession session) {
 
-		return session.getAttribute(registerOwnerDTO.ownerEmail()).equals(registerOwnerDTO.crossCode());
+		Object obj = session.getAttribute(registerOwnerDTO.ownerEmail());
+		if(obj!=null)
+		return obj.equals(registerOwnerDTO.crossCode());
+		else 
+			return false;
 	}
 }

@@ -64,7 +64,7 @@ public class LogsService {
 			return "Failed";
 		}
 
-		List<Log> filteredLogs = logsRepository.findbyLogVisitorTimeBetween(convertTo(targetTime, false),
+		List<Log> filteredLogs = logsRepository.findByLogVisitorTimeBetween(convertTo(targetTime, false),
 				convertTo(targetTime, true));
 
 		List<Log> tempList = filteredLogs.stream()
