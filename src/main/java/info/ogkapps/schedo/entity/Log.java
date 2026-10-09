@@ -18,23 +18,23 @@ public class Log {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "log_id")
 	private Integer logId;
-	
-	//@Column(name = "log_owner_id")
-	//private Integer logOwnerId;
-	
+
+	// @Column(name = "log_owner_id")
+	// private Integer logOwnerId;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "log_owner_id", nullable = false)
 	private Owner owner;
-	
+
 	@Column(name = "log_visitor_name")
 	private String logVisitorName;
-	
+
 	@Column(name = "log_visitor_email")
 	private String logVisitorEmail;
-	
+
 	@Column(name = "log_visitor_time")
 	private Long logVisitorTime;
-	
+
 	@Column(name = "log_created_at")
 	private Long logCreatedAt;
 
@@ -100,5 +100,5 @@ public class Log {
 	public void setLogCreatedAt(Long logCreatedAt) {
 		this.logCreatedAt = logCreatedAt;
 	}
-	
+
 }

@@ -7,5 +7,5 @@ import info.ogkapps.schedo.entity.Owner;
 
 @Repository
 public interface OwnersRepository extends JpaRepository<Owner, Integer>{
-
+Owner findByOwnerEmail(String ownerEmail);
 }

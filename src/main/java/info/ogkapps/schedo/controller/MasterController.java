@@ -1,5 +1,6 @@
 package info.ogkapps.schedo.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,9 +37,9 @@ public class MasterController {
 
 		if (!validationService.isValidInput(registerOwnerDTO))
 			return "Invalid input data format.";
-		
+
 		if (validationService.isOwnerRegistrationOnGoing(registerOwnerDTO, session))
-			return  registerOwnerDTO.ownerEmail() + " is being used by someone else, can not proceed.";
+			return registerOwnerDTO.ownerEmail() + " is being used by someone else, can not proceed.";
 
 		validationService.initiateRegistration(registerOwnerDTO, session);
 
@@ -47,6 +48,9 @@ public class MasterController {
 
 	@PostMapping("/confirm")
 	public String otpReceived(@RequestBody RegisterOwnerDTO registerOwnerDTO, HttpSession session) {
+
+		if (!validationService.isValidInput(registerOwnerDTO))
+			return "Invalid input data format.";
 
 		if (validationService.isOtpValid(registerOwnerDTO, session)) {
 			return ownerService.registerOwner(registerOwnerDTO);
@@ -58,12 +62,20 @@ public class MasterController {
 	@PostMapping("/check")
 	public List<ScheduledTimeListDTO> getRunningList(@RequestBody CheckAvailabilityDTO checkAvailabilityDTO) {
 
+		if (!validationService.isValidInput(checkAvailabilityDTO)) {
+			List<ScheduledTimeListDTO> temp = new ArrayList<ScheduledTimeListDTO>(1);
+			temp.add(new ScheduledTimeListDTO(0, 0, 0l, "", "Invalid input data format."));
+			return temp;
+		}
 		return logsService.scheduledTimeList(checkAvailabilityDTO);
 	}
 
 	@PostMapping("/mark")
 	public String markMeeting(@RequestBody ScheduleMeetingDTO scheduleMeetingDTO) {
 
+		if (!validationService.isValidInput(scheduleMeetingDTO)) {
+			return "Invalid input data format.";
+		}
 		return logsService.markMeetingIfValid(scheduleMeetingDTO);
 	}
 
