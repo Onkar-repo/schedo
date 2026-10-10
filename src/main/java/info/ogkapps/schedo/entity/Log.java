@@ -29,6 +29,12 @@ public class Log {
 	@JoinColumn(name = "log_owner_id", nullable = false)
 	private Owner owner;
 
+	@Override
+	public String toString() {
+		return "Log [logId=" + logId + ", owner=" + owner.getOwnerEmail() + ", logVisitorName=" + logVisitorName + ", logVisitorEmail="
+				+ logVisitorEmail + ", logVisitorTime=" + logVisitorTime + ", logCreatedAt=" + logCreatedAt + "]";
+	}
+
 	@Column(name = "log_visitor_name")
 	private String logVisitorName;
 

@@ -65,7 +65,7 @@ public class MasterController {
 
 		if (!validationService.isValidInput(checkAvailabilityDTO)) {
 			List<ScheduledTimeListDTO> temp = new ArrayList<ScheduledTimeListDTO>(1);
-			temp.add(new ScheduledTimeListDTO(0, 0, 0l, "", "Invalid input data format."));
+			temp.add(new ScheduledTimeListDTO(0, 0, checkAvailabilityDTO.targetDate(), checkAvailabilityDTO.ownerEmail(), "Invalid input data format."));
 			return temp;
 		}
 		return logsService.scheduledTimeList(checkAvailabilityDTO);

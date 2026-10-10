@@ -31,6 +31,11 @@ public class LogsService {
 
 	public List<ScheduledTimeListDTO> scheduledTimeList(CheckAvailabilityDTO checkAvailabilityDTO) {
 		List<Log> allLogs = logsRepository.findByOwner_OwnerEmail(checkAvailabilityDTO.ownerEmail());
+		
+		for (Log log2 : allLogs) {
+			System.out.println(log2.toString());
+		}
+		
 		long startNum = checkAvailabilityDTO.targetDate(), endNum = (startNum + 86400000l);
 		List<Log> filteredLogs = allLogs.stream()
 				.filter(log -> log.getLogVisitorTime() >= startNum && log.getLogVisitorTime() <= endNum).toList();
@@ -38,7 +43,7 @@ public class LogsService {
 		int sr = 0;
 		for (Log l : filteredLogs) {
 			finalList.add(sr,
-					new ScheduledTimeListDTO(null, l.getLogId(), l.getLogVisitorTime(), l.getLogVisitorEmail(), "ok"));
+					new ScheduledTimeListDTO(++sr, l.getLogId(), l.getLogVisitorTime(), l.getLogVisitorEmail(), "ok"));
 		}
 		return finalList;
 	}
@@ -85,12 +90,9 @@ public class LogsService {
 				.filter(log -> log.getLogVisitorTime() > beforeTarget && log.getLogVisitorTime() < afterTarget)
 				.toList();
 
-		List<Log> tempList2 = filteredLogs.stream()
-				.filter(log -> log.getLogVisitorTime() < shiftStart || log.getLogVisitorTime() > shiftEnd
-						|| (log.getLogVisitorTime() > breakStart && log.getLogVisitorTime() < breakEnd))
-				.toList();
+		boolean invalidTime =  targetTime < shiftStart || targetTime > shiftEnd || (targetTime > breakStart && targetTime < breakEnd);
 
-		if (!tempList.isEmpty() || !tempList2.isEmpty()) {
+		if (!tempList.isEmpty() || invalidTime) {
 			return "Time not available. Check Availability and retry.";
 		}
 		long timeNow = System.currentTimeMillis();
