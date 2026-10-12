@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Meeting Scheduler</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom smooth transitions */
+        * { transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.95);
+        }
+    </style>
+</head>
+<body class="h-full font-sans antialiased bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 flex flex-col min-h-screen">
+
+    <!-- Header & Theme Customizer Bar -->
+    <header class="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm py-4 px-6 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div id="brand-icon-bg" class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-calendar-check text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">MeetingScheduler</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Streamline your appointments effortlessly</p>
+                </div>
+            </div>
+
+            <!-- Theme Switcher & Actions -->
+            <div class="flex items-center flex-wrap gap-3">
+                <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span class="text-xs font-semibold px-2 text-slate-500 dark:text-slate-400 hidden md:inline">Theme:</span>
+                    <button onclick="setTheme('emerald')" class="theme-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-600 text-white shadow-sm transition" data-theme="emerald">Emerald</button>
+                    <button onclick="setTheme('indigo')" class="theme-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" data-theme="indigo">Indigo</button>
+                    <button onclick="setTheme('sunset')" class="theme-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" data-theme="sunset">Sunset</button>
+                    <button onclick="setTheme('dark')" class="theme-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" data-theme="dark">Dark Sleek</button>
+                </div>
+
+                <!-- Dark/Light Mode Toggle -->
+                <button onclick="toggleDarkMode()" id="dark-mode-toggle" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:scale-105" title="Toggle Dark/Light">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        <!-- Left 2 Columns: Main Scheduling Form -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="glass-card rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden">
+                <!-- Card Header -->
+                <div id="form-header-bg" class="bg-emerald-600 px-6 py-5 text-white transition-colors duration-300">
+                    <h2 class="text-2xl font-bold flex items-center gap-3">
+                        <i class="fa-solid fa-calendar-plus"></i> Schedule a Meeting
+                    </h2>
+                   <!-- <p class="text-emerald-100 text-sm mt-1">Select your service provider, choose a time, and secure your slot instantly.</p> --> 
+                </div>
+
+                <!-- Form Body -->
+                <form id="meetingForm" onsubmit="handleFormSubmit(event)" class="p-6 sm:p-8 space-y-5">
+                    
+                    <!-- Service Provider Dropdown -->
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300" for="serviceProvider">
+                            <i class="fa-solid fa-user-tie mr-1.5 opacity-70"></i> Service Provider
+                        </label>
+                        <div class="relative">
+                            <select id="serviceProvider" required class="w-full px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none appearance-auto text-slate-800 dark:text-slate-100 shadow-sm">
+                                <option value="" disabled selected>Select Service Provider</option>
+                                <option value="Dr. Sarah Jenkins (Cardiology)">Dr. Sarah Jenkins (Cardiology)</option>
+                                <option value="Mr. David Miller (Tax & Financial Advisor)">Mr. David Miller (Tax & Financial Advisor)</option>
+                                <option value="Ms. Elena Rostova (Legal Consultant)">Ms. Elena Rostova (Legal Consultant)</option>
+                                <option value="Tech Support Team (IT Helpdesk)">Tech Support Team (IT Helpdesk)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Visitor Name -->
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300" for="visitorName">
+                            <i class="fa-solid fa-user mr-1.5 opacity-70"></i> Visitor Name
+                        </label>
+                        <input type="text" id="visitorName" required placeholder="e.g., Alexander Wright" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-slate-800 dark:text-slate-100 shadow-sm">
+                    </div>
+
+                    <!-- Contact Number -->
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300" for="contactNumber">
+                            <i class="fa-solid fa-envelope mr-1.5 opacity-70"></i> Email Id
+                        </label>
+                        <input type="tel" id="contactNumber" required placeholder="e.g., alex@gmail.com" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-slate-800 dark:text-slate-100 shadow-sm">
+                    </div>
+
+                    <!-- Date & Time Picker -->
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300" for="meetingDateTime">
+                            <i class="fa-solid fa-clock mr-1.5 opacity-70"></i> Date & Time
+                        </label>
+                        <input type="datetime-local" id="meetingDateTime" required class="w-full px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-slate-800 dark:text-slate-100 shadow-sm">
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-4 flex flex-col sm:flex-row gap-4">
+                        <button type="button" onclick="checkAvailability()" id="check-avail-btn" class="flex-1 py-3.5 px-6 rounded-xl font-semibold bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass"></i> Check Availability
+                        </button>
+                        <button type="submit" id="submit-btn" class="flex-1 py-3.5 px-6 rounded-xl font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> Submit Meeting
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: Management & Quick Navigation -->
+        <div class="space-y-6">
+            <div class="glass-card rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl p-6 space-y-4">
+                <h3 class="text-lg font-bold flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <i class="fa-solid fa-toolbox text-emerald-600"></i> Service Provider
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Actions for the business service providers.</p>
+
+                <div class="space-y-3 pt-2">
+                    <button onclick="openModal('providerModal')" class="w-full py-3 px-4 rounded-xl font-medium text-white bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 shadow-md flex items-center justify-between">
+                        <span class="flex items-center gap-2.5">Registration</span>
+                        <i class="fa-solid fa-chevron-right text-xs opacity-60"></i>
+                    </button>
+
+                    
+                </div>
+				
+				                <div class="space-y-3 pt-2">
+                    <button onclick="" class="w-full py-3 px-4 rounded-xl font-medium text-white bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 shadow-md flex items-center justify-between">
+                        <span class="flex items-center gap-2.5">Modification</span>
+                        <i class="fa-solid fa-chevron-right text-xs opacity-60"></i>
+                    </button>
+
+                                    <div class="space-y-3 pt-2">
+                    <button onclick="" class="w-full py-3 px-4 rounded-xl font-medium text-white bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 shadow-md flex items-center justify-between">
+                        <span class="flex items-center gap-2.5">Information</span>
+                        <i class="fa-solid fa-chevron-right text-xs opacity-60"></i>
+                    </button>
+
+                    
+                </div>
+
+                </div>
+
+				
+            </div>
+
+           
+        </div>
+    </main>
+
+    <!-- Modal: Service Provider Registration -->
+    <div id="providerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4">
+        <div class="glass-card rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-6 relative animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-4">
+                <h3 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-emerald-600"></i> Service Provider Registration
+                </h3>
+                <button onclick="closeModal('providerModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleProviderRegister(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500">Provider Full Name</label>
+                    <input type="text" id="newProvName" required placeholder="e.g., Dr. Robert Chen" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500">Specialty / Department</label>
+                    <input type="text" id="newProvDept" required placeholder="e.g., Orthopedic Surgery" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500">Email Address</label>
+                    <input type="email" id="newProvEmail" required placeholder="robert.chen@clinic.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div class="pt-3 flex gap-3">
+                    <button type="button" onclick="closeModal('providerModal')" class="flex-1 py-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">Cancel</button>
+                    <button type="submit" class="flex-1 py-3 rounded-xl text-white font-semibold" id="modal-submit-btn" style="background-color: var(--theme-primary, #059669);">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Reports & Scheduled Appointments -->
+    <div id="reportsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4">
+        <div class="glass-card rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-6 relative max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-4">
+                <h3 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-emerald-600"></i> Scheduled Meetings Report
+                </h3>
+                <button onclick="closeModal('reportsModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Reports List Container -->
+            <div id="reportsList" class="flex-grow overflow-y-auto space-y-3 pr-1">
+                <!-- Dynamically populated appointments -->
+            </div>
+
+            <div class="border-t border-slate-200 dark:border-slate-700 pt-4 flex justify-between items-center">
+                <span id="total-meetings-count" class="text-xs font-semibold text-slate-500">Total Bookings: 0</span>
+                <button onclick="closeModal('reportsModal')" class="py-2.5 px-6 rounded-xl text-white font-semibold" id="modal-close-btn" style="background-color: var(--theme-primary, #059669);">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-300 glass-card px-5 py-4 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+        <div id="toast-icon" class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <div>
+            <h5 id="toast-title" class="font-bold text-sm">Success</h5>
+            <p id="toast-msg" class="text-xs text-slate-500 dark:text-slate-400">Action completed successfully.</p>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let appointments = JSON.parse(localStorage.getItem('ms_appointments')) || [
+            { id: 1, provider: 'Dr. Sarah Jenkins (Cardiology)', visitor: 'Jane Doe', contact: '+1 (555) 234-5678', datetime: '2026-10-10T10:00' },
+            { id: 2, provider: 'Mr. David Miller (Tax & Financial Advisor)', visitor: 'John Smith', contact: '+1 (555) 987-6543', datetime: '2026-10-11T14:30' }
+        ];
+
+        let serviceProviders = JSON.parse(localStorage.getItem('ms_providers')) || [
+            'Dr. Sarah Jenkins (Cardiology)',
+            'Mr. David Miller (Tax & Financial Advisor)',
+            'Ms. Elena Rostova (Legal Consultant)',
+            'Tech Support Team (IT Helpdesk)'
+        ];
+
+        // Themes configuration
+        const themes = {
+            emerald: {
+                primary: '#059669', // emerald-600
+                primaryHover: '#047857', // emerald-700
+                lightBg: '#E1FAC8',
+                badgeBg: '#10b981',
+                ring: '#059669'
+            },
+            indigo: {
+                primary: '#4f46e5', // indigo-600
+                primaryHover: '#4338ca', // indigo-700
+                lightBg: '#e0e7ff',
+                badgeBg: '#6366f1',
+                ring: '#4f46e5'
+            },
+            sunset: {
+                primary: '#ea580c', // orange-600
+                primaryHover: '#c2410c', // orange-700
+                lightBg: '#ffedd5',
+                badgeBg: '#f97316',
+                ring: '#ea580c'
+            },
+            dark: {
+                primary: '#334155', // slate-700
+                primaryHover: '#1e293b', // slate-800
+                lightBg: '#334155',
+                badgeBg: '#475569',
+                ring: '#475569'
+            }
+        };
+
+        // Initialize App on load
+        window.onload = function() {
+            updateProviderDropdown();
+            updateBadgeCount();
+            
+            // Check saved theme
+            const savedTheme = localStorage.getItem('ms_theme') || 'emerald';
+            setTheme(savedTheme, false);
+
+            // Check saved dark mode
+            if (localStorage.getItem('ms_dark') === 'true') {
+                document.documentElement.classList.add('dark');
+            }
+        };
+
+        // Theme Switcher Function
+        function setTheme(themeName, showToastMsg = true) {
+            const theme = themes[themeName] || themes.emerald;
+            localStorage.setItem('ms_theme', themeName);
+
+            // Update CSS variables / elements matching theme
+            document.documentElement.style.setProperty('--theme-primary', theme.primary);
+
+            // Update header & buttons background
+            const formHeader = document.getElementById('form-header-bg');
+            if (formHeader) {
+                formHeader.style.backgroundColor = theme.primary;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            if (submitBtn) {
+                submitBtn.style.backgroundColor = theme.primary;
+            }
+
+            const brandIcon = document.getElementById('brand-icon-bg');
+            if (brandIcon) {
+                brandIcon.style.backgroundColor = theme.primary;
+            }
+
+            const modalSubmitBtn = document.getElementById('modal-submit-btn');
+            if (modalSubmitBtn) modalSubmitBtn.style.backgroundColor = theme.primary;
+
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            if (modalCloseBtn) modalCloseBtn.style.backgroundColor = theme.primary;
+
+            // Highlight active button in UI
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                if (btn.getAttribute('data-theme') === themeName) {
+                    btn.className = `theme-btn px-3 py-1.5 text-xs font-medium rounded-lg text-white shadow-sm transition`;
+                    btn.style.backgroundColor = theme.primary;
+                } else {
+                    btn.className = `theme-btn px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition`;
+                    btn.style.backgroundColor = 'transparent';
+                }
+            });
+
+            if (showToastMsg) {
+                showToast('Theme Updated', `Switched to ${themeName.charAt(0).toUpperCase() + themeName.slice(1)} theme.`);
+            }
+        }
+
+        // Toggle Dark Mode
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('ms_dark', isDark);
+            showToast('Appearance', isDark ? 'Dark mode enabled' : 'Light mode enabled');
+        }
+
+        // Update Provider Dropdown options
+        function updateProviderDropdown() {
+            const select = document.getElementById('serviceProvider');
+            if (!select) return;
+            
+            const currentVal = select.value;
+            select.innerHTML = '<option value="" disabled selected>Select Service Provider</option>';
+            
+            serviceProviders.forEach(prov => {
+                const opt = document.createElement('option');
+                opt.value = prov;
+                opt.textContent = prov;
+                if (prov === currentVal) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        // Check Availability button handler
+        function checkAvailability() {
+            const provider = document.getElementById('serviceProvider').value;
+            const dateTime = document.getElementById('meetingDateTime').value;
+
+            if (!provider) {
+                showToast('Notice', 'Please select a service provider first.', 'error');
+                return;
+            }
+            if (!dateTime) {
+                showToast('Notice', 'Please choose a date and time slot.', 'error');
+                return;
+            }
+
+            // Simulate check
+            const isBooked = appointments.some(app => app.provider === provider && app.datetime === dateTime);
+            if (isBooked) {
+                showToast('Slot Occupied', 'Selected time slot is already booked for this provider. Please choose another.', 'error');
+            } else {
+                showToast('Slot Available!', 'The requested meeting slot is open and ready to submit.');
+            }
+        }
+
+        // Form Submit handler
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const provider = document.getElementById('serviceProvider').value;
+            const visitor = document.getElementById('visitorName').value;
+            const contact = document.getElementById('contactNumber').value;
+            const datetime = document.getElementById('meetingDateTime').value;
+
+            const newApp = {
+                id: Date.now(),
+                provider,
+                visitor,
+                contact,
+                datetime
+            };
+
+            appointments.push(newApp);
+            localStorage.setItem('ms_appointments', JSON.stringify(appointments));
+            updateBadgeCount();
+
+            showToast('Meeting Scheduled!', `Successfully booked with ${provider}`);
+            document.getElementById('meetingForm').reset();
+        }
+
+        // Register new Service Provider
+        function handleProviderRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('newProvName').value;
+            const dept = document.getElementById('newProvDept').value;
+            const formatted = `${name} (${dept})`;
+
+            if (serviceProviders.includes(formatted)) {
+                showToast('Error', 'Service provider already exists.', 'error');
+                return;
+            }
+
+            serviceProviders.push(formatted);
+            localStorage.setItem('ms_providers', JSON.stringify(serviceProviders));
+            updateProviderDropdown();
+
+            closeModal('providerModal');
+            document.getElementById('newProvName').value = '';
+            document.getElementById('newProvDept').value = '';
+            document.getElementById('newProvEmail').value = '';
+
+            showToast('Registered', `${formatted} added successfully.`);
+        }
+
+        // Load Reports into Modal
+        function loadReports() {
+            const container = document.getElementById('reportsList');
+            const totalCount = document.getElementById('total-meetings-count');
+            container.innerHTML = '';
+
+            totalCount.textContent = `Total Bookings: ${appointments.length}`;
+
+            if (appointments.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-slate-400">
+                        <i class="fa-solid fa-calendar-xmark text-4xl mb-2 opacity-40"></i>
+                        <p class="text-sm">No scheduled meetings found.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            appointments.forEach((app, index) => {
+                const dateFormatted = new Date(app.datetime).toLocaleString();
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">#${index + 1}</span>
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${app.visitor}</h4>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1"><i class="fa-solid fa-user-tie mr-1"></i> ${app.provider}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"><i class="fa-solid fa-clock mr-1"></i> ${dateFormatted} &bull; <i class="fa-solid fa-phone ml-1"></i> ${app.contact}</p>
+                    </div>
+                    <button onclick="cancelAppointment(${app.id})" class="text-xs text-red-500 hover:text-red-700 bg-red-50 dark:bg-red-950/30 px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-900/50 transition">
+                        <i class="fa-solid fa-trash mr-1"></i> Cancel
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Cancel Appointment
+        function cancelAppointment(id) {
+            appointments = appointments.filter(app => app.id !== id);
+            localStorage.setItem('ms_appointments', JSON.stringify(appointments));
+            updateBadgeCount();
+            loadReports();
+            showToast('Cancelled', 'Meeting booking removed.', 'error');
+        }
+
+        // Update badge counter
+        function updateBadgeCount() {
+            const badge = document.getElementById('badge-count');
+            if (badge) badge.textContent = appointments.length;
+        }
+
+        // Modal Controls
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Toast Notification Function
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastTitle.textContent = title;
+            toastMsg.textContent = message;
+
+            if (type === 'error') {
+                toastIcon.className = 'w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center text-sm font-bold';
+                toastIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            } else {
+                toastIcon.className = 'w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-bold';
+                toastIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
+            }
+
+            toast.classList.remove('translate-y-32', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
