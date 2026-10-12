@@ -4,24 +4,28 @@ import java.util.Random;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import info.ogkapps.schedo.dto.CheckAvailabilityDTO;
 import info.ogkapps.schedo.dto.RegisterOwnerDTO;
 import info.ogkapps.schedo.dto.ScheduleMeetingDTO;
+import info.ogkapps.schedo.repository.OwnersRepository;
 import jakarta.servlet.http.HttpSession;
 
 @Service
 public class ValidationService {
 
 	private JavaMailSender mailSender;
-	
+	private OwnersRepository ownersRepository;
 
-	public ValidationService(JavaMailSender mailSender) {
+	public ValidationService(JavaMailSender mailSender, OwnersRepository ownersRepository) {
 		super();
 		this.mailSender = mailSender;
+		this.ownersRepository = ownersRepository;
 	}
 
+	@Async("emailTaskExecutor")
 	public void sendSimpleEmail(String toEmail, String subject, String body) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom("onkarkulak@gmail.com");
@@ -29,6 +33,11 @@ public class ValidationService {
 		message.setSubject(subject);
 		message.setText(body);
 		mailSender.send(message);
+		System.out.println("mail method executed. ");
+	}
+	
+	public boolean ownerExists(String ownerEmail) {
+		return ownersRepository.existsByOwnerEmail(ownerEmail);
 	}
 
 	public boolean isValidInput(RegisterOwnerDTO registerOwnerDTO) {

@@ -42,6 +42,9 @@ public class MasterController {
 		if (validationService.isOwnerRegistrationOnGoing(registerOwnerDTO, session))
 			return registerOwnerDTO.ownerEmail() + " is being used by someone else, can not proceed.";
 
+		if (validationService.ownerExists(registerOwnerDTO.ownerEmail()))
+			return "Owner exists for given email " + registerOwnerDTO.ownerEmail();
+		
 		validationService.initiateRegistration(registerOwnerDTO, session);
 
 		return "OTP sent on the given email.";
@@ -84,6 +87,18 @@ public class MasterController {
 			return "Invalid input data format.";
 		}
 		return logsService.markMeetingIfValid(scheduleMeetingDTO);
+	}
+	
+	@GetMapping("/logs")
+	public List<ScheduledTimeListDTO> logsByOwner(@RequestParam String ownerEmail){
+		if (ownerEmail.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+			return logsService.returnAllLogs(ownerEmail);
+		}
+		else {
+			List<ScheduledTimeListDTO> temp = new ArrayList<ScheduledTimeListDTO>(1);
+			temp.add(new ScheduledTimeListDTO(0, 0, 0l, ownerEmail, "Invalid input data format."));
+			return temp;
+		}
 	}
 
 	@GetMapping("/reports")

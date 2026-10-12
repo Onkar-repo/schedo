@@ -20,8 +20,8 @@ import info.ogkapps.schedo.repository.OwnersRepository;
 @Service
 public class LogsService {
 
-	LogsRepository logsRepository;
-	OwnersRepository ownersRepository;
+	private LogsRepository logsRepository;
+	private OwnersRepository ownersRepository;
 
 	public LogsService(LogsRepository logsRepository, OwnersRepository ownersRepository) {
 		super();
@@ -31,19 +31,26 @@ public class LogsService {
 
 	public List<ScheduledTimeListDTO> scheduledTimeList(CheckAvailabilityDTO checkAvailabilityDTO) {
 		List<Log> allLogs = logsRepository.findByOwner_OwnerEmail(checkAvailabilityDTO.ownerEmail());
-		
-		for (Log log2 : allLogs) {
-			System.out.println(log2.toString());
-		}
-		
+
 		long startNum = checkAvailabilityDTO.targetDate(), endNum = (startNum + 86400000l);
 		List<Log> filteredLogs = allLogs.stream()
 				.filter(log -> log.getLogVisitorTime() >= startNum && log.getLogVisitorTime() <= endNum).toList();
 		List<ScheduledTimeListDTO> finalList = new LinkedList<>();
 		int sr = 0;
 		for (Log l : filteredLogs) {
-			finalList.add(sr,
-					new ScheduledTimeListDTO(++sr, l.getLogId(), l.getLogVisitorTime(), l.getLogVisitorEmail(), "ok"));
+			finalList.add(sr, new ScheduledTimeListDTO(++sr, l.getLogId(), l.getLogVisitorTime(),
+					l.getLogVisitorEmail(), "ok"));
+		}
+		return finalList;
+	}
+
+	public List<ScheduledTimeListDTO> returnAllLogs(String ownerEmail) {
+		List<Log> allLogs = logsRepository.findByOwner_OwnerEmail(ownerEmail);
+		List<ScheduledTimeListDTO> finalList = new LinkedList<>();
+		int sr = 0;
+		for (Log log : allLogs) {
+
+			finalList.add(new ScheduledTimeListDTO(++sr, log.getLogId(), log.getLogVisitorTime(), ownerEmail, "ok"));
 		}
 		return finalList;
 	}
@@ -90,7 +97,8 @@ public class LogsService {
 				.filter(log -> log.getLogVisitorTime() > beforeTarget && log.getLogVisitorTime() < afterTarget)
 				.toList();
 
-		boolean invalidTime =  targetTime < shiftStart || targetTime > shiftEnd || (targetTime > breakStart && targetTime < breakEnd);
+		boolean invalidTime = targetTime < shiftStart || targetTime > shiftEnd
+				|| (targetTime > breakStart && targetTime < breakEnd);
 
 		if (!tempList.isEmpty() || invalidTime) {
 			return "Time not available. Check Availability and retry.";
