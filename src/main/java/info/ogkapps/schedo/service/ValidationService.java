@@ -2,11 +2,8 @@ package info.ogkapps.schedo.service;
 
 import java.util.Random;
 
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import info.ogkapps.schedo.dto.CheckAvailabilityDTO;
 import info.ogkapps.schedo.dto.RegisterOwnerDTO;
 import info.ogkapps.schedo.dto.ScheduleMeetingDTO;
@@ -16,25 +13,19 @@ import jakarta.servlet.http.HttpSession;
 @Service
 public class ValidationService {
 
-	private JavaMailSender mailSender;
 	private OwnersRepository ownersRepository;
+	private EmailService emailService;
+	
+	@Value("${thisapp.sessiontimeout:60}")
+	private int sessionTimeoutSeconds;
 
-	public ValidationService(JavaMailSender mailSender, OwnersRepository ownersRepository) {
+	public ValidationService(OwnersRepository ownersRepository, EmailService emailService) {
 		super();
-		this.mailSender = mailSender;
 		this.ownersRepository = ownersRepository;
+		this.emailService = emailService;
 	}
 
-	@Async("emailTaskExecutor")
-	public void sendSimpleEmail(String toEmail, String subject, String body) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setFrom("onkarkulak@gmail.com");
-		message.setTo(toEmail);
-		message.setSubject(subject);
-		message.setText(body);
-		mailSender.send(message);
-		System.out.println("mail method executed. ");
-	}
+	
 	
 	public boolean ownerExists(String ownerEmail) {
 		return ownersRepository.existsByOwnerEmail(ownerEmail);
@@ -83,8 +74,8 @@ public class ValidationService {
 	public void initiateRegistration(RegisterOwnerDTO registerOwnerDTO, HttpSession session) {
 		String otp = String.valueOf(new Random().nextInt(1000, 10000));
 		session.setAttribute(registerOwnerDTO.ownerEmail(), otp);
-		session.setMaxInactiveInterval(60);
-		sendSimpleEmail(registerOwnerDTO.ownerEmail(), "Schedo - Validate Email Id",
+		session.setMaxInactiveInterval(sessionTimeoutSeconds);
+		emailService.sendSimpleEmail(registerOwnerDTO.ownerEmail(), "Schedo - Validate Email Id",
 				"OTP: " + otp + " (Expires in 1 minute)");
 	}
 
