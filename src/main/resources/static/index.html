@@ -192,16 +192,16 @@
 
             <form onsubmit="handleProviderRegister(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500">Provider Full Name</label>
-                    <input type="text" id="newProvName" required placeholder="e.g., Dr. Robert Chen" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500">Name</label>
+                    <input type="text" id="newProvName" required placeholder="e.g., Adv. Lmn Pqr" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500">Specialty / Department</label>
-                    <input type="text" id="newProvDept" required placeholder="e.g., Orthopedic Surgery" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500">Profession</label>
+                    <input type="text" id="newProvDept" required placeholder="e.g., Legal Consultant" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500">Email Address</label>
-                    <input type="email" id="newProvEmail" required placeholder="robert.chen@clinic.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    <label class="block text-xs font-semibold uppercase tracking-wider mb-1 text-slate-500">Email</label>
+                    <input type="email" id="newProvEmail" required placeholder="lmn@ymail.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 </div>
                 <div class="pt-3 flex gap-3">
                     <button type="button" onclick="closeModal('providerModal')" class="flex-1 py-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">Cancel</button>
@@ -216,7 +216,7 @@
         <div class="glass-card rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-6 relative max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-4">
                 <h3 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-chart-pie text-emerald-600"></i>Currently Scheduled Meetings
+                    <i class="fa-solid fa-chart-pie text-emerald-600"></i><span id="meetingListHeader">Currently Scheduled Meetings</span>
                 </h3>
                 <button onclick="closeModal('reportsModal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
@@ -233,23 +233,23 @@
 				    <table class="w-full text-left border-collapse">
 				        <thead>
 				            <tr class="bg-slate-50 dark:bg-slate-800/50 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
-				                <th class="py-3 px-4">Visitor Name</th>
-				                <th class="py-3 px-4">Visitor Email</th>
+								<th class="py-3 px-4 w-16 text-center">Sr</th>
+								<th class="py-3 px-4">Visitor Name</th>
 				                <th class="py-3 px-4">Scheduled Time</th>
 				            </tr>
 				        </thead>
 				        <tbody id="reportsTableBody" class="divide-y divide-slate-200 dark:divide-slate-700 text-sm text-slate-700 dark:text-slate-300">
 				            <!-- Example row (for template / dynamic injection) -->
 				            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-				                <td class="py-3 px-4 font-medium text-slate-900 dark:text-white">
+				                <td class="py-3 px-4 w-16 text-center font-medium text-slate-400 dark:text-slate-500">1</td>
+								<td class="py-3 px-4 font-medium text-slate-900 dark:text-white">
 				                    <div class="flex items-center gap-2">
 				                        <i class="fa-solid fa-handshake text-emerald-600 text-xs"></i>
 				                        <span>Ravanrao Lankekar</span>
 				                    </div>
 				                </td>
-				                <td class="py-3 px-4">dashanan@ashokvatika.com</td>
 				                <td class="py-3 px-4 ext-xs">
-				                    <div class="text-slate-500">From 10:00 AM (Upto 15 minutes)</div>
+				                    <div class="text-slate-500">10:00 To 10:15</div>
 				                </td>
 				            </tr>
 				            <!-- End of example row -->
@@ -261,7 +261,7 @@
 				
             </div>
             <div class="border-t border-slate-200 dark:border-slate-700 pt-4 flex justify-between items-center">
-                <span id="total-meetings-count" class="text-xs font-semibold text-slate-500">Working Hours: 10 AM to 2 PM, 6 PM to 10 PM</span>
+                <span id="working-hours" class="text-xs font-semibold text-slate-500">Working Hours: 10 AM to 2 PM, 6 PM to 10 PM</span>
                 <button onclick="closeModal('reportsModal')" class="py-2.5 px-6 rounded-xl text-white font-semibold" id="modal-close-btn" style="background-color: var(--theme-primary, #059669);">Close</button>
             </div>
         </div>
