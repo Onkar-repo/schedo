@@ -39,7 +39,7 @@ public class LogsService {
 		int sr = 0;
 		for (Log l : filteredLogs) {
 			finalList.add(sr, new ScheduledTimeListDTO(++sr, l.getLogId(), l.getLogVisitorTime(),
-					l.getLogVisitorEmail(), "ok"));
+					l.getLogVisitorEmail(), "ok", l.getLogVisitorName()));
 		}
 		return finalList;
 	}
@@ -50,7 +50,7 @@ public class LogsService {
 		int sr = 0;
 		for (Log log : allLogs) {
 
-			finalList.add(new ScheduledTimeListDTO(++sr, log.getLogId(), log.getLogVisitorTime(), ownerEmail, "ok"));
+			finalList.add(new ScheduledTimeListDTO(++sr, log.getLogId(), log.getLogVisitorTime(), ownerEmail, "ok", log.getLogVisitorName()));
 		}
 		return finalList;
 	}
