@@ -1,5 +1,8 @@
 package info.ogkapps.schedo.service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -40,12 +43,23 @@ public class ValidationService {
 		return !on.equals("") && !oe.equals("") && !oc.equals("") && oe.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 	}
 
+	
+	private long startMomentOfTheDay(long millis) {
+		LocalDateTime temp = LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault());
+		LocalDateTime customDateTime = LocalDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(), 0,
+				0, 0);
+		long newMillis = customDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+		return newMillis;
+	}
+	
+	
 	public boolean isValidInput(CheckAvailabilityDTO checkAvailabilityDTO) {
 		String oe = checkAvailabilityDTO.ownerEmail();
 		Long td = checkAvailabilityDTO.targetDate();
-		long ct = System.currentTimeMillis();
-
-		return !oe.equals("") && oe.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$") && td > ct;
+		long ct = startMomentOfTheDay(System.currentTimeMillis());
+		System.out.println(oe + ":" + td + ":");
+System.out.println(td + " td\n" + ct + " ct\n" + (td>ct?1:0));
+		return !oe.equals("") && oe.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$") && td >= ct;
 
 	}
 

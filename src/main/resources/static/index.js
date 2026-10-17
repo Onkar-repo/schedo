@@ -5,11 +5,12 @@ const spDropdown = document.getElementById("serviceProvider");
 const tableList = document.getElementById("reportsTableBody");
 async function loadAvailability() {
     try {
-
+		tableList.replaceChildren();
         const payload = {
             ownerEmail: spDropdown.value,
-            targetDate: Date.parse(document.getElementById("meetingDateTime").value)
+            targetDate: Date.parse(document.getElementById("meetingDateTime").value.split("T")[0])-19800000
         };
+		console.log("payload" + payload);
         const mhb = {
             method: 'POST',
             headers: { 'Content-Type': 'Application/json', 'Access-Control-Allow-Origin': '*' },
@@ -22,9 +23,9 @@ async function loadAvailability() {
 			return;
 		}
 		const list = await loadResponse.json();
-		if(list!==null){
+		if(list!==null && list.length > 0 && list[0].message==="ok"){
 			console.log(list);
-			tableList.replaceChildren();
+			document.getElementById("errMsg").innerText= "Message: "+"Check existing schedules, working hours and choose appropriate time";
 			for(let i =0;i< list.length; i++){
 				const tempTr = document.createElement("tr");
 				tempTr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
@@ -50,20 +51,27 @@ async function loadAvailability() {
 				       spDropdown.focus();
 				       return;
 				   }
-				   
-				const vte= new Date(list[i].logVisitorTime + thisSp.ownerTimeSpan);
+				
+				   console.log(list[i].logVisitorTime);   
+				   console.log(thisSp.ownerTimeSpan);   
+				const vte= new Date(list[i].logVisitorTime + thisSp.ownerTimeSpan*60000);
 				tempTd3Div.innerText = vt.getHours() + ":" + vt.getMinutes() + " To " + vte.getHours() + ":" + vte.getMinutes();
 				
 				tempTd2Div.appendChild(tempTd2DivI);								
 				tempTd2Div.appendChild(tempTd2DivSpan);	
-				tempTd3.appendChild(tempTd3Div);
-				tempTd2.appendChild();							
+				tempTd3.appendChild(tempTd3Div);						
 				tempTd2.appendChild(tempTd2Div);
 				tempTr.appendChild(tempTd1);							
 				tempTr.appendChild(tempTd2);							
 				tempTr.appendChild(tempTd3);							
 				tableList.appendChild(tempTr);																	
 			}
+		}
+		else{
+			if(list!==null && list.length===0)
+			document.getElementById("errMsg").innerText= "Message: "+"No appointments on this day. Entire day is empty. You can book any valid working time.";
+			else
+	document.getElementById("errMsg").innerText= "Message: "+list[0].message;
 		}
     }
     catch (err) {
