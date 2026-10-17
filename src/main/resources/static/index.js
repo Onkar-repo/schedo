@@ -3,6 +3,8 @@ console.log("Hello Schedo!");
 let spList = [];
 const spDropdown = document.getElementById("serviceProvider");
 const tableList = document.getElementById("reportsTableBody");
+const checkAvailibity = document.getElementById("check-avail-btn");
+const finalSubmit = document.getElementById("submit-btn");
 async function loadAvailability() {
     try {
 		tableList.replaceChildren();
@@ -10,8 +12,7 @@ async function loadAvailability() {
             ownerEmail: spDropdown.value,
             targetDate: Date.parse(document.getElementById("meetingDateTime").value.split("T")[0])-19800000
         };
-		console.log("payload" + payload);
-        const mhb = {
+		const mhb = {
             method: 'POST',
             headers: { 'Content-Type': 'Application/json', 'Access-Control-Allow-Origin': '*' },
             body: JSON.stringify(payload)
@@ -127,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById("serviceProvider").focus();
 });
 
-const checkAvailibity = document.getElementById("check-avail-btn");
+
 
 checkAvailibity.addEventListener('click', () => {
 
@@ -143,4 +144,29 @@ checkAvailibity.addEventListener('click', () => {
     document.getElementById("meetingListHeader").innerText = thisSp.ownerName + ": " + document.getElementById("meetingDateTime").value.split("T")[0];
 	loadAvailability();
     openModal("reportsModal");
+});
+
+async function doSubmit(){
+	const payload = {
+	            ownerEmail: spDropdown.value,
+	            logVisitorName: document.getElementById("visitorName").value,
+				logVisitorEmail: document.getElementById("visitorEmail").value,
+				logVisitorTime: Date.parse(document.getElementById("meetingDateTime").value)
+			};
+	const mhb = {
+	            method: 'POST',
+	            headers: { 'Content-Type': 'Application/json', 'Access-Control-Allow-Origin': '*' },
+	            body: JSON.stringify(payload)
+	        };
+	        const submitResponse = await fetch("/schedo/mark", mhb);
+			if(!submitResponse.ok){
+				console.log(submitResponse.status + ":" + submitResponse.statusText);
+				alert(submitResponse.status);
+				return;
+			}
+			const msg = await submitResponse.text();
+			alert(msg);
+}
+finalSubmit.addEventListener('click',()=>{
+	doSubmit();
 });
