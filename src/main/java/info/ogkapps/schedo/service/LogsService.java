@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.method.annotation.HandlerMethodValidationException.Visitor;
 
 import info.ogkapps.schedo.dto.CheckAvailabilityDTO;
 import info.ogkapps.schedo.dto.ScheduleMeetingDTO;
@@ -22,11 +23,13 @@ public class LogsService {
 
 	private LogsRepository logsRepository;
 	private OwnersRepository ownersRepository;
+	private EmailService emailService;
 
-	public LogsService(LogsRepository logsRepository, OwnersRepository ownersRepository) {
+	public LogsService(LogsRepository logsRepository, OwnersRepository ownersRepository, EmailService emailService) {
 		super();
 		this.logsRepository = logsRepository;
 		this.ownersRepository = ownersRepository;
+		this.emailService = emailService;
 	}
 
 	public List<ScheduledTimeListDTO> scheduledTimeList(CheckAvailabilityDTO checkAvailabilityDTO) {
@@ -50,7 +53,8 @@ public class LogsService {
 		int sr = 0;
 		for (Log log : allLogs) {
 
-			finalList.add(new ScheduledTimeListDTO(++sr, log.getLogId(), log.getLogVisitorTime(), ownerEmail, "ok", log.getLogVisitorName()));
+			finalList.add(new ScheduledTimeListDTO(++sr, log.getLogId(), log.getLogVisitorTime(), ownerEmail, "ok",
+					log.getLogVisitorName()));
 		}
 		return finalList;
 	}
@@ -106,7 +110,11 @@ public class LogsService {
 		long timeNow = System.currentTimeMillis();
 		logsRepository.save(new Log(null, tOwner, scheduleMeetingDTO.logVisitorName(),
 				scheduleMeetingDTO.logVisitorEmail(), scheduleMeetingDTO.logVisitorTime(), timeNow));
-
+		LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(scheduleMeetingDTO.logVisitorTime()),
+				ZoneId.systemDefault());
+		String body = "Hi " + scheduleMeetingDTO.logVisitorName() + ",\n\n" + "This is a confirmation of your visit to "
+				+ tOwner.getOwnerName() + " (" + tOwner.getOwnerCatagory() + ") " + " on " + time.toString();
+		emailService.sendSimpleEmail(scheduleMeetingDTO.logVisitorEmail(), "Notification - Visit Scheduled!", body);
 		return "marked";
 	}
 }

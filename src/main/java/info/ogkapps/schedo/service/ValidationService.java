@@ -27,10 +27,11 @@ public class ValidationService {
 		this.ownersRepository = ownersRepository;
 		this.emailService = emailService;
 	}
-
-	
 	
 	public boolean ownerExists(String ownerEmail) {
+		if (ownerEmail == null ) 
+		throw new RuntimeException("ownerEmail can not be null.");
+		
 		return ownersRepository.existsByOwnerEmail(ownerEmail);
 	}
 
@@ -39,7 +40,8 @@ public class ValidationService {
 		String on = registerOwnerDTO.ownerName();
 		String oe = registerOwnerDTO.ownerEmail();
 		String oc = registerOwnerDTO.ownerCatagory();
-
+		if (on == null || oe == null || oc == null) 
+			throw new RuntimeException("Any of these - [ownerName, ownerEmail, ownerCatagory, crossCode] can not be null.");
 		return !on.equals("") && !oe.equals("") && !oc.equals("") && oe.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 	}
 
@@ -56,6 +58,11 @@ public class ValidationService {
 	public boolean isValidInput(CheckAvailabilityDTO checkAvailabilityDTO) {
 		String oe = checkAvailabilityDTO.ownerEmail();
 		Long td = checkAvailabilityDTO.targetDate();
+		
+		if (oe == null || td == null) 
+			throw new RuntimeException("Any of these - [ownerEmail, targetDate] can not be null.");
+
+		
 		long ct = startMomentOfTheDay(System.currentTimeMillis());
 		System.out.println(oe + ":" + td + ":");
 System.out.println(td + " td\n" + ct + " ct\n" + (td>ct?1:0));
@@ -69,6 +76,8 @@ System.out.println(td + " td\n" + ct + " ct\n" + (td>ct?1:0));
 		String lve = scheduleMeetingDTO.logVisitorEmail();
 		Long lvt = scheduleMeetingDTO.logVisitorTime();
 		long ct = System.currentTimeMillis();
+		if (lvn == null || oe == null || lve == null || lvt ==null) 
+			throw new RuntimeException("Any of these - [ownerEmail, logVisitorName, logVisitorEmail, logVisitorTime] can not be null.");
 
 		System.out.println(oe);
 		System.out.println(lvn);
