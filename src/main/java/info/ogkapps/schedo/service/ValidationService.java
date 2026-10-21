@@ -98,8 +98,8 @@ System.out.println(td + " td\n" + ct + " ct\n" + (td>ct?1:0));
 		String otp = String.valueOf(new Random().nextInt(1000, 10000));
 		session.setAttribute(registerOwnerDTO.ownerEmail(), otp);
 		session.setMaxInactiveInterval(sessionTimeoutSeconds);
-		emailService.sendSimpleEmail(registerOwnerDTO.ownerEmail(), "Schedo - Validate Email Id",
-				"OTP: " + otp + " (Expires in 1 minute)");
+		emailService.sendSimpleEmail(registerOwnerDTO.ownerEmail(), "Schedo",
+				"OTP: " + otp + " (Expires in "+ sessionTimeoutSeconds + "seconds)");
 	}
 
 	public boolean isOtpValid(RegisterOwnerDTO registerOwnerDTO, HttpSession session) {

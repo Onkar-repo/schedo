@@ -3,7 +3,9 @@ package info.ogkapps.schedo.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +28,9 @@ public class MasterController {
 	private final OwnerService ownerService;
 	private final LogsService logsService;
 
+	@Value("${thisapp.sessiontimeout:60}")
+	private int sessionTimeoutSeconds;
+
 	public MasterController(ValidationService validationService, OwnerService ownerService, LogsService logsService) {
 		super();
 		this.validationService = validationService;
@@ -44,7 +49,7 @@ public class MasterController {
 
 		if (validationService.ownerExists(registerOwnerDTO.ownerEmail()))
 			return "Owner exists for given email " + registerOwnerDTO.ownerEmail();
-		
+
 		validationService.initiateRegistration(registerOwnerDTO, session);
 
 		return "OTP sent on the given email.";
@@ -57,6 +62,7 @@ public class MasterController {
 			return "Invalid input data format.";
 
 		if (validationService.isOtpValid(registerOwnerDTO, session)) {
+			session.invalidate();
 			return ownerService.registerOwner(registerOwnerDTO);
 		}
 
@@ -68,15 +74,16 @@ public class MasterController {
 
 		if (!validationService.isValidInput(checkAvailabilityDTO)) {
 			List<ScheduledTimeListDTO> temp = new ArrayList<ScheduledTimeListDTO>(1);
-			temp.add(new ScheduledTimeListDTO(0, 0, checkAvailabilityDTO.targetDate(), checkAvailabilityDTO.ownerEmail(), "Invalid input data format.",""));
+			temp.add(new ScheduledTimeListDTO(0, 0, checkAvailabilityDTO.targetDate(),
+					checkAvailabilityDTO.ownerEmail(), "Invalid input data format.", ""));
 			return temp;
 		}
 		return logsService.scheduledTimeList(checkAvailabilityDTO);
 	}
-	
+
 	@GetMapping("/load")
-	public List<LoadOwnersDTO> getOwners(){
-		
+	public List<LoadOwnersDTO> getOwners() {
+
 		return ownerService.returnAllOwners();
 	}
 
@@ -88,15 +95,40 @@ public class MasterController {
 		}
 		return logsService.markMeetingIfValid(scheduleMeetingDTO);
 	}
-	
-	@GetMapping("/logs")
-	public List<ScheduledTimeListDTO> logsByOwner(@RequestParam String ownerEmail){
+
+	@GetMapping("/view")
+	public String otpForLogsByOwner(@RequestParam("ownerEmail") String ownerEmail, HttpSession session) {
 		if (ownerEmail.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-			return logsService.returnAllLogs(ownerEmail);
+			String otp = String.valueOf(new Random().nextInt(1000, 10000));
+			String msg = logsService.sendOtp(ownerEmail, otp);
+			if (msg.equals("sent")) {
+				session.setAttribute(ownerEmail, otp);
+				session.setMaxInactiveInterval(sessionTimeoutSeconds);
+				return "Sent.";
+			}
+			if (msg.equals("ona")) {
+				return "Owner email does not exists.";
+			}
 		}
-		else {
+		return "Invalid owner email id format.";
+	}
+
+	@GetMapping("/logs")
+	public List<ScheduledTimeListDTO> logsByOwner(@RequestParam("ownerEmail") String ownerEmail, @RequestParam("crossCode") String otp,
+			HttpSession session) {
+
+		if (ownerEmail.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+			if (session.getAttribute(ownerEmail).equals(otp)) {
+				session.invalidate();
+				return logsService.returnAllLogs(ownerEmail);
+			}
 			List<ScheduledTimeListDTO> temp = new ArrayList<ScheduledTimeListDTO>(1);
-			temp.add(new ScheduledTimeListDTO(0, 0, 0l, ownerEmail, "Invalid input data format.",""));
+			temp.add(new ScheduledTimeListDTO(0, 0, 0l, ownerEmail, "Mismatched or expired OTP.", ""));
+			return temp;
+
+		} else {
+			List<ScheduledTimeListDTO> temp = new ArrayList<ScheduledTimeListDTO>(1);
+			temp.add(new ScheduledTimeListDTO(0, 0, 0l, ownerEmail, "Invalid input data format.", ""));
 			return temp;
 		}
 	}

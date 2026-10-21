@@ -116,4 +116,13 @@ public class LogsService {
 		emailService.sendSimpleEmail(scheduleMeetingDTO.logVisitorEmail(), "Notification - Visit Scheduled!", body);
 		return "marked";
 	}
+	
+	public String sendOtp(String ownerEmail, String otp) {
+		
+		if (ownersRepository.existsByOwnerEmail(ownerEmail)) {
+			emailService.sendSimpleEmail(ownerEmail, "Schedo", "OTP: " + otp);
+			return "sent";
+		}
+		return "ona";
+	}
 }
