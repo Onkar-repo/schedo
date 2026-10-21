@@ -118,6 +118,9 @@ public class MasterController {
 			HttpSession session) {
 
 		if (ownerEmail.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+			if (session==null || session.getAttribute(ownerEmail)==null || !session.getAttribute(ownerEmail).equals(otp)) {
+				 throw new RuntimeException("Unknown email id.");
+			}
 			if (session.getAttribute(ownerEmail).equals(otp)) {
 				session.invalidate();
 				return logsService.returnAllLogs(ownerEmail);
